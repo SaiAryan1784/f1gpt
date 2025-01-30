@@ -90,6 +90,8 @@ const Home = () => {
         }
         append(msg)
 
+        handleInputChange('');
+
         try {
             // Send the message to the backend
             const response = await fetch('/api/chat', {
