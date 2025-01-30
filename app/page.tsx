@@ -48,14 +48,14 @@ const Home = () => {
             }
 
             // Assuming the backend returns a plain text or HTML response
-            const data = await response.text(); // Get raw text (could be HTML or other content)
+            const data = await response.text();  // Get raw text (could be HTML or other content)
 
-            const finalResponse = data.replace(/<think>.*?<\/think>/g, '').trim();
+            const cleanResponse = data.replace(/<think>.*?<\/think>/gs, '').trim(); 
 
-            // Create the AI message from the response
+            // Create the AI message from the cleaned response
             const aiMessage: Message = {
                 id: crypto.randomUUID(),
-                content: finalResponse || "Sorry, I couldn't get the information.", // Handle cases where content is not returned
+                content: cleanResponse || "Sorry, I couldn't get the information.", // Default response if nothing is returned
                 role: "assistant",
             };
 
