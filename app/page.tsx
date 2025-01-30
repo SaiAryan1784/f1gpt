@@ -7,6 +7,7 @@ import { Message } from 'ai/react'
 import Bubble from './components/Bubble'
 import PromptSuggestionsRow from './components/PromptSuggestionsRow'
 import LoadingBubble from './components/LoadingBubble'
+import SubmitButton from './components/SubmitButton'
 
 const Home = () => {
     const { append, messages, input, handleInputChange, isLoading, setInput } = useChat()
@@ -105,6 +106,7 @@ const Home = () => {
 
     return (
         <div className='p-5 w-[60vw] h-[80vh] flex items-center flex-col justify-between text-center bg-gray-400 rounded-2xl bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-30'>
+            
             <Image src={f1GPTLogo} alt='logo' width={175} height={175} className='rounded-lg' />
             <section className={noMessages ? "" : "h-[calc(80vh-150px)] flex flex-col justify-between w-full overflow-hidden"}>
                 {noMessages ? (
@@ -123,20 +125,17 @@ const Home = () => {
                     </div>
                 )}
 
-                <form className='h-14 w-[55vw] flex border-t-2 border-blue-400 pt-[20px] overflow-hidden rounded-b-[20px]'
+                <form className='h-14 w-[55vw] border-t-2 border-blue-400 pt-[20px] overflow-hidden flex justify-between'
                     onSubmit={handleSubmit}
                 >
                     <input 
-                        className='w-[85%] p-[10px] text-[15px] border-none focus:outline-none' 
+                        className='w-[85%] p-[10px] text-[15px] border-none focus:outline-none rounded-lg' 
                         type="text" 
                         onChange={handleInputChange} 
                         value={input} 
                         placeholder="Ask me something" 
                     />
-                    <input 
-                        className='w-[15%] text-[15px] border-none text-white bg-red-400 cursor-pointer focus:outline-none' 
-                        type="submit" 
-                    />
+                    <SubmitButton/>
                 </form>
             </section>
         </div>
