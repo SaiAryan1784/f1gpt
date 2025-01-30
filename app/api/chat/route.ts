@@ -19,18 +19,41 @@ const llm = new ChatGroq({
     temperature: 0,
 });
 
-const rateLimit = new LRUCache({
-    max: 500, // Store up to 500 different IPs
-    ttl: 60 * 1000, // 1-minute window
+const rateLimit = new LRUCache<string, { count: number; lastRequest: number; bannedUntil?: number }>({
+    max: 500, // Store up to 500 IPs
+    ttl: 10 * 60 * 1000, // Keep data for 10 minutes
 });
 
 /**
- * Middleware function for rate limiting
+ * Rate limiter with banning mechanism.
  */
 function rateLimiter(ip: string): boolean {
-    const currentRequests = (rateLimit.get(ip) as number) || 0;
-    if (currentRequests >= 10) return false; // Allow max 10 requests per minute
-    rateLimit.set(ip, currentRequests + 1);
+    const now = Date.now();
+    const data = rateLimit.get(ip) || { count: 0, lastRequest: now };
+
+    // Check if IP is banned
+    if (data.bannedUntil && now < data.bannedUntil) {
+        console.warn(`IP ${ip} is banned until ${new Date(data.bannedUntil).toISOString()}`);
+        return false;
+    }
+
+    // Reset count if last request was more than a minute ago
+    if (now - data.lastRequest > 60 * 1000) {
+        data.count = 0;
+    }
+
+    data.count += 1;
+    data.lastRequest = now;
+
+    // Ban if more than 10 requests in a minute
+    if (data.count > 10) {
+        data.bannedUntil = now + 10 * 60 * 1000; // Ban for 10 minutes
+        console.warn(`IP ${ip} is temporarily banned.`);
+        rateLimit.set(ip, data);
+        return false;
+    }
+
+    rateLimit.set(ip, data);
     return true;
 }
 
@@ -43,7 +66,10 @@ export async function POST(req: Request) {
 
         // Apply rate limiting
         if (!rateLimiter(ip)) {
-            return new NextResponse("Too many requests. Please try again later.", { status: 429 });
+            return new NextResponse("Too many requests. You are temporarily banned.", {
+                status: 429,
+                headers: { "Retry-After": "600" }, // Inform the client to retry after 10 minutes
+            });
         }
         const { messages } = await req.json();
         const latestMessage = messages[messages.length - 1].content;
