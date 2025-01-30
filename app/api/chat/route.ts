@@ -2,16 +2,13 @@ import { ChatGroq } from "@langchain/groq";
 import { DataAPIClient } from "@datastax/astra-db-ts";
 import { HfInference } from "@huggingface/inference";
 import { NextResponse } from "next/server";
-import { streamText } from 'ai';
 import "dotenv/config"
-import { isTemplateLiteralTypeNode } from "typescript";
 
 const { 
     ASTRA_DB_NAMESPACE, 
     ASTRA_DB_COLLECTION, 
     ASTRA_DB_API_ENDPOINT, 
     ASTRA_DB_APPLICATION_TOKEN, 
-    GROQ_API_KEY,
     HUGGINGFACE_API_KEY
 } = process.env;
 
