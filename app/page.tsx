@@ -2,7 +2,6 @@
 import React from 'react'
 import Image from 'next/image'
 import f1GPTLogo from '../public/F1GPT.png'
-// import BG from '../public/bg.png'
 import { useChat } from 'ai/react'
 import { Message } from 'ai/react'
 import Bubble from './components/Bubble'
@@ -13,18 +12,7 @@ const Home = () => {
     const { append, messages, input, handleInputChange, isLoading } = useChat()
     const noMessages = !messages || messages.length === 0
 
-    // const handlePrompt = (promptText: string) => {
-    //     const msg: Message = {
-    //         id: crypto.randomUUID(),
-    //         content: promptText,
-    //         role: "user"
-    //     }
-    //     append(msg)
-    // }
-
     const PromptSubmit = async (promptText : string) => {
-
-        // Append the user message to the chat
         const msg: Message = {
             id: crypto.randomUUID(),
             content: promptText,
@@ -33,38 +21,32 @@ const Home = () => {
         append(msg)
 
         try {
-            // Send the message to the backend
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ messages: [...messages, msg] }), // Send all messages including the current one
+                body: JSON.stringify({ messages: [...messages, msg] }), 
             });
 
-            // If the response is not ok, handle the error
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // Assuming the backend returns a plain text or HTML response
-            const data = await response.text();  // Get raw text (could be HTML or other content)
+            const data = await response.text(); 
+            const cleanResponse = data.replace(/<think>.*?<\/think>/gs, '').trim();
 
-            const cleanResponse = data.replace(/<think>.*?<\/think>/gs, '').trim(); 
-
-            // Create the AI message from the cleaned response
             const aiMessage: Message = {
                 id: crypto.randomUUID(),
-                content: cleanResponse || "Sorry, I couldn't get the information.", // Default response if nothing is returned
+                content: cleanResponse || "Sorry, I couldn't get the information.",
                 role: "assistant",
             };
 
-            append(aiMessage); // Append the AI message to the chat
+            append(aiMessage);
 
         } catch (error) {
             console.error('Error:', error);
 
-            // Append error message when the request fails
             const aiMessage: Message = {
                 id: crypto.randomUUID(),
                 content: "Sorry, something went wrong. Please try again later.",
@@ -77,12 +59,10 @@ const Home = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        // Check if there's any user input
         if (!input.trim()) {
-            return; // Don't submit if input is empty
+            return; 
         }
 
-        // Append the user message to the chat
         const msg: Message = {
             id: crypto.randomUUID(),
             content: input,
@@ -90,41 +70,33 @@ const Home = () => {
         }
         append(msg)
 
-        handleInputChange('');
-
         try {
-            // Send the message to the backend
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ messages: [...messages, msg] }), // Send all messages including the current one
+                body: JSON.stringify({ messages: [...messages, msg] }), 
             });
 
-            // If the response is not ok, handle the error
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // Assuming the backend returns a plain text or HTML response
-            const data = await response.text(); // Get raw text (could be HTML or other content)
+            const data = await response.text(); 
+            const cleanResponse = data.replace(/<think>.*?<\/think>/gs, '').trim();
 
-            const cleanResponse = data.replace(/<think>.*?<\/think>/gs, '').trim(); 
-
-            // Create the AI message from the cleaned response
             const aiMessage: Message = {
                 id: crypto.randomUUID(),
-                content: cleanResponse || "Sorry, I couldn't get the information.", // Default response if nothing is returned
+                content: cleanResponse || "Sorry, I couldn't get the information.",
                 role: "assistant",
             };
 
-                append(aiMessage); // Append the AI message to the chat
+            append(aiMessage);
 
         } catch (error) {
             console.error('Error:', error);
 
-            // Append error message when the request fails
             const aiMessage: Message = {
                 id: crypto.randomUUID(),
                 content: "Sorry, something went wrong. Please try again later.",
@@ -145,16 +117,12 @@ const Home = () => {
                         <PromptSuggestionsRow onPromptClick={PromptSubmit} />
                     </>
                 ) : (
-                    <>
-                        {/* Messages container with scrollable area */}
-                        <div className="flex flex-col overflow-y-auto h-full mb-2">
-                            {messages.map((message, index) => <Bubble key={`message-${index}`} message={message} />)}
-                            {isLoading && <LoadingBubble />}
-                        </div>
-                    </>
+                    <div className="flex flex-col overflow-y-auto h-full mb-2">
+                        {messages.map((message, index) => <Bubble key={`message-${index}`} message={message} />)}
+                        {isLoading && <LoadingBubble />}
+                    </div>
                 )}
 
-                {/* Input form */}
                 <form className='h-14 w-[55vw] flex border-t-2 border-blue-400 pt-[20px] overflow-hidden rounded-b-[20px]'
                     onSubmit={handleSubmit}
                 >
