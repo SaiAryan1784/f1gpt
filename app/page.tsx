@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import f1GPTLogo from '../public/F1GPT.png'
 import { useChat } from 'ai/react'
@@ -9,10 +9,16 @@ import PromptSuggestionsRow from './components/PromptSuggestionsRow'
 import LoadingBubble from './components/LoadingBubble'
 
 const Home = () => {
-    const { append, messages, input, handleInputChange, isLoading } = useChat()
+    const { append, messages, input, handleInputChange, isLoading, setInput } = useChat()
     const noMessages = !messages || messages.length === 0
+    const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
-    const PromptSubmit = async (promptText : string) => {
+    // Auto-scroll to the last message when messages update
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, [messages])
+
+    const PromptSubmit = async (promptText: string) => {
         const msg: Message = {
             id: crypto.randomUUID(),
             content: promptText,
@@ -23,45 +29,39 @@ const Home = () => {
         try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ messages: [...messages, msg] }), 
-            });
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: [...messages, msg] }),
+            })
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
-            const data = await response.text(); 
-            const cleanResponse = data.replace(/<think>.*?<\/think>/gs, '').trim();
+            const data = await response.text()
+            const cleanResponse = data.replace(/<think>.*?<\/think>/gs, '').trim()
 
             const aiMessage: Message = {
                 id: crypto.randomUUID(),
                 content: cleanResponse || "Sorry, I couldn't get the information.",
                 role: "assistant",
-            };
+            }
 
-            append(aiMessage);
+            append(aiMessage)
 
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error:', error)
 
             const aiMessage: Message = {
                 id: crypto.randomUUID(),
                 content: "Sorry, something went wrong. Please try again later.",
                 role: "assistant",
-            };
-            append(aiMessage);
+            }
+            append(aiMessage)
         }
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (!input.trim()) {
-            return; 
-        }
+        if (!input.trim()) return
 
         const msg: Message = {
             id: crypto.randomUUID(),
@@ -69,40 +69,37 @@ const Home = () => {
             role: "user",
         }
         append(msg)
+        setInput('') // Clear input field after submission
 
         try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ messages: [...messages, msg] }), 
-            });
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: [...messages, msg] }),
+            })
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
-            const data = await response.text(); 
-            const cleanResponse = data.replace(/<think>.*?<\/think>/gs, '').trim();
+            const data = await response.text()
+            const cleanResponse = data.replace(/<think>.*?<\/think>/gs, '').trim()
 
             const aiMessage: Message = {
                 id: crypto.randomUUID(),
                 content: cleanResponse || "Sorry, I couldn't get the information.",
                 role: "assistant",
-            };
+            }
 
-            append(aiMessage);
+            append(aiMessage)
 
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error:', error)
 
             const aiMessage: Message = {
                 id: crypto.randomUUID(),
                 content: "Sorry, something went wrong. Please try again later.",
                 role: "assistant",
-            };
-            append(aiMessage);
+            }
+            append(aiMessage)
         }
     }
 
@@ -118,16 +115,28 @@ const Home = () => {
                     </>
                 ) : (
                     <div className="flex flex-col overflow-y-auto h-full mb-2">
-                        {messages.map((message, index) => <Bubble key={`message-${index}`} message={message} />)}
+                        {messages.map((message, index) => (
+                            <Bubble key={`message-${index}`} message={message} />
+                        ))}
                         {isLoading && <LoadingBubble />}
+                        <div ref={messagesEndRef} />
                     </div>
                 )}
 
                 <form className='h-14 w-[55vw] flex border-t-2 border-blue-400 pt-[20px] overflow-hidden rounded-b-[20px]'
                     onSubmit={handleSubmit}
                 >
-                    <input className='w-[85%] p-[10px] text-[15px] border-none focus:outline-none' type="text" onChange={handleInputChange} value={input} placeholder="Ask me something" />
-                    <input className='w-[15%] text-[15px] border-none text-white bg-red-400 cursor-pointer focus:outline-none' type="submit" />
+                    <input 
+                        className='w-[85%] p-[10px] text-[15px] border-none focus:outline-none' 
+                        type="text" 
+                        onChange={handleInputChange} 
+                        value={input} 
+                        placeholder="Ask me something" 
+                    />
+                    <input 
+                        className='w-[15%] text-[15px] border-none text-white bg-red-400 cursor-pointer focus:outline-none' 
+                        type="submit" 
+                    />
                 </form>
             </section>
         </div>
