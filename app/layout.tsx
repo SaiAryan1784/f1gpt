@@ -11,12 +11,12 @@ export const metadata = {
 const RootLayout = ({children}) => {
   return (
     <html lang='en'>
-        <body className='p-0 flex flex-col my-auto justify-center h-screen items-center bg-no-repeat bg-cover'
+        <body className='p-0 flex flex-col my-auto justify-center h-screen items-center bg-no-repeat bg-cover bg-center'
               style={{ backgroundImage: `url(${BG.src})` }}
               >
                 <a href="https://github.com/SaiAryan1784/f1gpt" 
                     target='_blank'
-                   className="absolute top-4 left-4 z-50">
+                   className="absolute top-2 left-2 sm:top-4 sm:left-4 z-50">
                     <StaronGithub />
                 </a>
             {children}

@@ -105,18 +105,18 @@ const Home = () => {
     }
 
     return (
-        <div className='p-5 w-[60vw] h-[80vh] flex items-center flex-col justify-between text-center bg-gray-400 rounded-2xl bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-30'>
+        <div className='p-4 sm:p-5 w-[90vw] md:w-[80vw] lg:w-[60vw] h-[80vh] flex items-center flex-col justify-between text-center bg-gray-400 rounded-2xl bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-30 border border-white/20 shadow-xl'>
             
-            <Image src={f1GPTLogo} alt='logo' width={175} height={175} className='rounded-lg' />
-            <section className={noMessages ? "" : "h-[calc(80vh-150px)] flex flex-col justify-between w-full overflow-hidden"}>
+            <Image src={f1GPTLogo} alt='logo' width={175} height={175} className='rounded-lg w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] md:w-[175px] md:h-[175px] shadow-lg transition-all duration-300 hover:scale-105' />
+            <section className={`${noMessages ? "" : "h-[calc(80vh-150px)]"} flex flex-col justify-between w-full overflow-hidden items-center`}>
                 {noMessages ? (
-                    <>
-                        <p className='px-[80px]'>The ultimate place to ask F1 questions</p>
+                    <div className="flex flex-col items-center justify-center w-full">
+                        <p className='px-4 sm:px-[80px] text-sm sm:text-base font-medium text-gray-800'>The ultimate place to ask F1 questions</p>
                         <br />
                         <PromptSuggestionsRow onPromptClick={PromptSubmit} />
-                    </>
+                    </div>
                 ) : (
-                    <div className="flex flex-col overflow-y-auto h-full mb-2">
+                    <div className="flex flex-col overflow-y-auto h-full w-full mb-2">
                         {messages.map((message, index) => (
                             <Bubble key={`message-${index}`} message={message} />
                         ))}
@@ -125,15 +125,16 @@ const Home = () => {
                     </div>
                 )}
 
-                <form className='h-14 w-[55vw] border-t-2 border-blue-400 pt-[20px] overflow-hidden flex justify-between'
+                <form 
+                    className='h-14 w-full mx-auto max-w-[95%] md:max-w-[90%] border-t-2 border-blue-400 pt-[20px] overflow-hidden flex justify-between self-center'
                     onSubmit={handleSubmit}
                 >
                     <input 
-                        className='w-[85%] p-[10px] text-[15px] border-none focus:outline-none rounded-lg' 
+                        className='w-[85%] p-[10px] text-[15px] border-none focus:outline-none rounded-lg shadow-inner bg-white/90' 
                         type="text" 
                         onChange={handleInputChange} 
                         value={input} 
-                        placeholder="Ask me something" 
+                        placeholder="Ask me something about Formula 1..." 
                     />
                     <SubmitButton/>
                 </form>
